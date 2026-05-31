@@ -1,0 +1,24 @@
+bastian :
+- name :bastian_internet
+  port :22
+  src  :internet 
+  dest :bastian
+- name :bastian_[catalogue,user,shipping,payment,mongdb,redis,rabbitmq]
+  port :8080
+  src  :[catalogue,user,shipping,payment,mongdb,redis,rabbitmq]
+  dest :bastian
+mongodb :
+- name :mongodb_bastian # mongdb(instance) accptng conn from bastian(instance)
+  port :22
+  src  :bastian
+  dest :mongodb
+- name :mongodb_catalogue # mongodb(databsae) accepting connection from catalogue (instance),Catalogue:random_port → MongoDB:27017
+  port :27017
+  src  :catalogue
+  dest :mongodb
+- name :mongodb_user 
+  port :27017
+  src  :user 
+  dest :mongodb
+
+  

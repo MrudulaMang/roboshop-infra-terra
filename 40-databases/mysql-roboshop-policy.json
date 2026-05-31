@@ -1,0 +1,20 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "VisualEditor0",
+            "Effect": "Allow",
+            "Action": "ssm:GetParameter",
+            "Resource": "arn:aws:ssm:us-east-1:833415032280:parameter/roboshop/${environment}/mysql_root_password"
+            # "Resource": "arn:aws:ssm:us-east-1:833415032280:parameter/roboshop/dev/mysql_root_password"
+        },
+        {
+            "Sid": "VisualEditor1",
+            "Effect": "Allow",
+            "Action": "ssm:DescribeParameters",
+            "Resource": "*"
+        }
+    ]
+}
+
+#${environment} can give dev stage prod accordinlgy

@@ -1,0 +1,42 @@
+# SESSION 39 — SECURITY GROUP RULES (TEXT BRANCH VIEW)
+
+```text
+My Laptop / My IP
+        │
+        └── SSH : 22
+                │
+                ▼
+        Bastion Security Group
+                │
+                ├── SSH : 22 ─────────────► MongoDB SG
+                │
+                ├── SSH : 22 ─────────────► Redis SG
+                │
+                ├── SSH : 22 ─────────────► MySQL SG
+                │
+                └── SSH : 22 ─────────────► RabbitMQ SG
+
+
+Catalogue SG
+        │
+        └── MongoDB : 27017 ─────────────► MongoDB SG
+
+
+User SG
+        │
+        ├── MongoDB : 27017 ─────────────► MongoDB SG
+        │
+        └── Redis : 6379 ────────────────► Redis SG
+
+
+Cart SG
+        │
+        └── Redis : 6379 ────────────────► Redis SG
+```
+
+---
+
+
+
+
+```

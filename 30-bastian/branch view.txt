@@ -1,0 +1,68 @@
+```text
+aws_iam_role.bastian
+│
+├── Role Name:
+│      RoboshopDevBastian
+│
+├── Trust Relationship:
+│      ec2.amazonaws.com
+│
+└── Used By:
+       EC2 Bastion Instance
+
+
+aws_instance_policy_attachment.bastian
+│
+├── Attached Role:
+│      RoboshopDevBastian
+│
+└── Attached Policy:
+       AdministratorAccess
+
+
+aws_iam_instance_profile.bastian
+│
+├── Instance Profile Name:
+│      ${var.project}-${var.environment}-bastian
+│
+└── Holds IAM Role:
+       RoboshopDevBastian
+
+
+aws_instance.bastian
+│
+├── AMI:
+│      ${local.ami_id}
+│
+├── Instance Type:
+│      t3.micro
+│
+├── VPC:
+│      ${local.vpc_id}
+│
+├── Public Subnet:
+│      ${local.public_subnet_id}
+│
+├── Security Group:
+│      ${local.bastian_sg_id}
+│
+├── IAM Instance Profile:
+│      aws_iam_instance_profile.bastian.name
+│
+├── User Data:
+│      bastian.sh
+│
+├── Root Volume:
+│      50 GB (gp3)
+│
+└── Purpose:
+       Configure backend and database instances
+       using Terraform
+
+
+Bastion Host Can Access:
+│
+├── MongoDB Instances
+├── Redis Instances
+├── MySQL Instances
+└── Other Backend Services
