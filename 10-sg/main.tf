@@ -12,7 +12,7 @@ module "sg" {
     vpd_id = local.vpc_id
 }
 
-*/
+/*
  count is danger in production, if one sg name is deleted index shifts,
  Use for_each for infrastructure
  Avoid count for mutable resources
@@ -20,8 +20,7 @@ module "sg" {
 
 module "sg" {
   for_each = toset(var.sg_names)
-
-  source = "git::https://github.com/MrudulaMang/terraform-aws-vpc"
+  source = "git::https://github.com/MrudulaMang/terraform-aws-sg"
   #source      = "../../terraform_aws_sg" # even though in loop gets module code only once and store in memory
   project     = var.project
   environment = var.environment
