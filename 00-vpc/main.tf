@@ -2,7 +2,7 @@
 # storing vpc_id in ssm parameter store
 
 module "vpc" {
-    source = "git::https://github.com/MrudulaMang/terraform/tree/main/terraform-aws-vpc"
+    source = "git::https://github.com/MrudulaMang/terraform-aws-vpc"
     #source = "../../terraform-aws-vpc"
     project = var.project
     environment = var.environment
