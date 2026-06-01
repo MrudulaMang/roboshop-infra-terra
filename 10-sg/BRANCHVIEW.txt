@@ -1,0 +1,98 @@
+Session 38
+│
+├── Goal
+│   │
+│   ├── Retrieve VPC ID
+│   │   └── data source → local.vpc_id
+│   │
+│   ├── Create Security Groups
+│   │   ├── mongodb
+│   │   ├── catalogue
+│   │   ├── user
+│   │   ├── cart
+│   │   └── other components
+│   │
+│   └── Store SG IDs
+│       └── AWS SSM Parameter Store
+│
+├── Initial Approach
+│   │
+│   └── count
+│       │
+│       ├── count = length(var.sg_names)
+│       │
+│       ├── Access using
+│       │   └── count.index
+│       │
+│       └── Problem
+│           └── Index-based tracking
+│
+├── Why count is Dangerous
+│   │
+│   ├── Resources identified by index
+│   │   ├── sg[0]
+│   │   ├── sg[1]
+│   │   └── sg[2]
+│   │
+│   ├── Delete one item
+│   │   └── Indexes shift
+│   │
+│   ├── Terraform sees changes
+│   │   └── Resources may be recreated
+│   │
+│   └── Production Risk
+│       ├── Unnecessary destroy/create
+│       ├── Service disruption
+│       └── State instability
+│
+├── Recommended Approach
+│   │
+│   └── for_each
+│       │
+│       ├── for_each = toset(var.sg_names)
+│       │
+│       ├── Resources tracked by key
+│       │   ├── mongodb
+│       │   ├── catalogue
+│       │   ├── user
+│       │   └── cart
+│       │
+│       └── Stable resource identity
+│
+├── Benefits of for_each
+│   │
+│   ├── Delete one SG
+│   │   └── Only that SG affected
+│   │
+│   ├── No index shifting
+│   │
+│   ├── Safer for production
+│   │
+│   └── Easier state management
+│
+├── Module Execution
+│   │
+│   ├── source = "../../terraform_aws_sg"
+│   │
+│   ├── Terraform does NOT load module code repeatedly
+│   │
+│   ├── Module source read once
+│   │
+│   └── Multiple instances created
+│       ├── module.sg["mongodb"]
+│       ├── module.sg["catalogue"]
+│       ├── module.sg["user"]
+│       └── module.sg["cart"]
+│
+└── Name Transformation
+    │
+    ├── replace(each.value, "_", "-")
+    │
+    ├── backend_alb
+    │   └── backend-alb
+    │
+    ├── frontend_alb
+    │   └── frontend-alb
+    │
+    └── Purpose
+        └── Follow AWS naming conventions

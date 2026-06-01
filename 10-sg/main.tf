@@ -21,7 +21,8 @@ module "sg" {
 module "sg" {
   for_each = toset(var.sg_names)
 
-  source      = "../../terraform_aws_sg" # even though in loop gets module code only once and store in memory
+  source = "git::https://github.com/MrudulaMang/terraform-aws-vpc"
+  #source      = "../../terraform_aws_sg" # even though in loop gets module code only once and store in memory
   project     = var.project
   environment = var.environment
   sg_name     = replace(each.value, "_", "-") # want backend_alb like names as  as backend-alb
