@@ -1,11 +1,11 @@
-#session 41 (33.00)
-#creating iam policy for mysql instance to get access to ssm parameter store for fetching mysqlrootpassword
+# session 41 (33.00)
+# creating iam policy for mysql instance to get access to ssm parameter store 
+  #for fetching mysqlrootpassword
 
 resource "aws_iam_role" "mysql" {
   name = local.mysql_role_name
-
-  # Terraform's "jsonencode" function converts a
-  # Terraform expression result to valid JSON syntax.
+    # Terraform's "jsonencode" function converts a
+    # Terraform expression result to valid JSON syntax.
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -33,8 +33,8 @@ resource "aws_iam_role" "mysql" {
 resource "aws_iam_policy" "mysql" {
   name        = local.mysql_policy_name
   description = "A policy for MySQL Ec2 instance"
-  # policy = file ("mysql-iam-policy.json")
-  #we u can to parametrise the environement and get relatice MySQLrootpassword use the below else above
+   # policy = file ("mysql-iam-policy.json")
+   # we u can to parametrise the environement and get relative MySQLrootpassword use the below else above
   policy      = templatefile("mysql-iam-policy.json", {
                 environment = var.environment
   })

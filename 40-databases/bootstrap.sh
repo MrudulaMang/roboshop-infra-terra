@@ -4,7 +4,7 @@ environment = $2
 dnf install ansible -y
 cd /home/ec2-user
 rm -rf ansible-roboshop-roles-tf 
-#Because -f tells Linux:“Even if file/dir doesn’t exist, don’t complain”
+  #Because -f tells Linux:“Even if file/dir doesn’t exist, don’t complain”
 git clone https://github.com/MrudulaMang/ansible-roboshop-roles-tf.git
 cd ansible-roboshop-roles-tf
 #git pull

@@ -1,21 +1,25 @@
+
 #session 40
-#EC2 instance creation
+    # EC2 instance creation FOR db's
+    # create ssh connection
+    # copy bootstrap.sh to tmp
+    # execute bootstrap to install anisble and corressponding db
+
 resource "aws_instance" "mongodb" {
-    name = "${var.project}-${var.environment}-mongodb"
+    ami = local.ami_id
     instance_type = "t3.micro"
     subnet_id = local.database_subnet_id
     vpc_security_group_ids = [local.mongodb_sg_id]
 
-  
-tags = merge(
-        {
-            Name ="${var.project}-${var.environment}-mongodb" 
-        },
-        local.common_tags
-    )
+    tags = merge(
+            local.common_tags,
+            {
+                Name ="${var.project}-${var.environment}-mongodb" 
+            }
+            )
 }
-# timestamp 14.40
 
+    # timestamp 14.40
 resource terraform_data "bootstrap_mongodb"{
      triggers_replace = [
         aws_instance.mongodb.id]
@@ -56,8 +60,8 @@ provisioner "remote_exec" {
     - retries needed
     - fragile
 
-|Aspect|        remote-exec|user_data|
-|---|---|---|
+|Aspect|        remote-exec|   user_data|
+|---|           ---|           ---|
 |Live logs|      ✅ Yes|    ❌ (unless centralized)can do by cloudwatch|
 |SSH dependency|❌ Required|✅ Not needed|
 |Scaling|       ❌ Poor|    ✅ Excellent|
@@ -75,8 +79,6 @@ resource "aws_instance" "redis" {
     instance_type = "t3.micro"
     subnet_id = local.database_subnet_id
     vpc_security_group_ids = [local.redis_sg_id]
-
-  
     tags = merge(
         {
             Name ="${var.project}-${var.environment}-redis" 
@@ -145,7 +147,7 @@ resource terraform_data "bootstrap_mysql"{
 
     # timestamp from sessiom TFS =22:26
     provisioner "file"{
-        source = "bootstrap.sh"        # copy file from here
+        source = "bootstrap.sh"           # copy file from here
         destination = "/tmp/bootstrap.sh" # to redis instance
     }
 
@@ -164,7 +166,6 @@ resource "aws_instance" "rabbitmq" {
     instance_type = "t3.micro"
     subnet_id = local.database_subnet_id
     vpc_security_group_ids = [local.rabbitmq_sg_id]
-
   
     tags = merge(
         {
@@ -177,7 +178,8 @@ resource "aws_instance" "rabbitmq" {
 resource terraform_data "bootstrap_rabbitmq"{
      triggers_replace = [
         aws_instance.rabbitmq.id]
-     #triggers when rabbitmq_id changes meaning when new instance is created
+          #filemd5("${path.module}/bootstrap.sh")
+          #triggers when rabbitmq_id changes meaning when new instance is created
     }
 
     connection {
@@ -210,3 +212,21 @@ resource terraform_data "bootstrap_rabbitmq"{
   #  aws_instance.db.id,
   #  filemd5("${path.module}/bootstrap.sh")
   # ]
+
+  /* TERRAFORM DATA
+  Older Terraform examples often did:
+    resource "aws_instance" "mongodb" {
+    ...
+    provisioner "file" {}
+    provisioner "remote-exec" {}
+    }
+
+ But if the provisioning fails, the instance resource can end up in a messy state.
+    Using:
+    terraform_data
+    separates:
+    Infrastructure Creation
+            from
+    Configuration Step
+    which is cleaner.
+  */

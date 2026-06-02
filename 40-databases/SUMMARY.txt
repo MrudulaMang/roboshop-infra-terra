@@ -1,0 +1,192 @@
+This code is creating four database-tier EC2 instances
+ and then using Terraform provisioners to configure them after creation.
+
+High-level flow:
+
+Terraform Apply
+      ↓
+Create EC2 Instance
+      ↓
+terraform_data triggered
+      ↓
+SSH into instance
+      ↓
+Copy bootstrap.sh
+      ↓
+Execute bootstrap.sh
+      ↓
+Install/Configure service
+
+Services being created:
+
+EC2 Instance	Purpose
+MongoDB	Database
+Redis	Cache
+MySQL	Database
+RabbitMQ	Message Broker
+
+For each service, the pattern is almost identical:
+
+resource "aws_instance" "service"
+
+Creates an EC2 instance in:
+
+subnet_id = local.database_subnet_id
+
+and attaches the corresponding security group:
+
+vpc_security_group_ids = [...]
+
+Then:
+
+resource "terraform_data" "bootstrap_service"
+
+is used to trigger configuration after instance creation.
+
+Key concepts:
+
+1. triggers_replace
+
+triggers_replace = [
+  aws_instance.mongodb.id
+]
+
+Meaning:
+
+Old EC2 destroyed
+New EC2 created
+      ↓
+Instance ID changes
+      ↓
+terraform_data recreated
+      ↓
+Provisioners run again
+
+Without this, Terraform would not rerun the bootstrap logic.
+
+2. SSH Connection
+
+connection {
+  type     = "ssh"
+  user     = "ec2-user"
+  password = "DevOps321"
+  host     = aws_instance.mongodb.private_ip
+}
+
+Terraform logs into the instance using SSH.
+
+3. File Provisioner
+
+provisioner "file" {
+  source      = "bootstrap.sh"
+  destination = "/tmp/bootstrap.sh"
+}
+
+Copies:
+
+Local Machine
+    bootstrap.sh
+          ↓
+MongoDB Instance
+    /tmp/bootstrap.sh
+
+4. Remote Exec Provisioner
+
+provisioner "remote_exec" {
+  inline = [
+    "chmod +x /tmp/bootstrap.sh",
+    "sudo sh /tmp/bootstrap.sh mongodb var.environment"
+  ]
+}
+
+Executes commands on the remote EC2.
+
+Example:
+
+Install Ansible
+Install MongoDB
+Configure MongoDB
+Start MongoDB
+
+all handled inside bootstrap.sh.
+
+Why the instructor discusses user_data vs remote-exec:
+
+Current approach:
+
+Terraform
+   ↓
+SSH
+   ↓
+Configure Server
+
+Problems:
+
+SSH must work
+Slow for many servers
+Partial failures
+Retries needed
+
+Cloud-native approach:
+
+Terraform
+   ↓
+Launch EC2
+   ↓
+user_data runs automatically
+   ↓
+Server configures itself
+
+Generally preferred for production.
+
+One important improvement noted in the comments:
+
+triggers_replace = [
+  aws_instance.db.id,
+  filemd5("${path.module}/bootstrap.sh")
+]
+
+Reason:
+
+Instance unchanged
+Script changed
+
+If only the script changes, Terraform won't rerun the provisioners because the instance ID stayed the same.
+
+Adding:
+
+filemd5("bootstrap.sh")
+
+forces reprovisioning whenever the script content changes.
+
+A few issues to notice:
+
+name = "..." is not a valid top-level argument for aws_instance; it should be inside tags.
+MySQL uses:
+vpc_security_ids
+
+which should be:
+
+vpc_security_group_ids
+MySQL appears to be attached to:
+local.redis_sg_id
+
+which is probably a mistake and should likely be a MySQL security group.
+
+Hardcoded password:
+password = "DevOps321"
+
+is not recommended; use secrets management instead.
+
+The core lesson is not MongoDB, Redis, MySQL, or RabbitMQ. The pattern being taught is:
+
+Create Infrastructure
+        +
+Post-Provision Configuration
+
+using:
+
+aws_instance
+terraform_data
+file provisioner
+remote_exec provisioner
