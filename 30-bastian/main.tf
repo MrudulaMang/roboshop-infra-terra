@@ -31,7 +31,8 @@ resource "aws_instance" "bastian" {
     )
 }
 
-# aws_iam_role '; aws_instance_policy_attachment ; aws_instance_policy_attachment
+  # aws_iam_role '; aws_instance_policy_attachment ; aws_instance_policy_attachment
+  #EC2 ISNTANCE ASSUMES THIS ROLE
 resource "aws_iam_role" "bastian" {
   name = "RoboshopDevBastian"
 
