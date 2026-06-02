@@ -20,10 +20,7 @@ data "aws_ami" "joindevops"{
 
 }
 
-data "aws_ssm_parameter" "vpc_id" {
-    value = "${var.project}/${var.environment}"
-}
-
+# no need to mention vpc id as terraform automatifcally assumes vpc depending on the chosen subnet
 data "aws_ssm_parameter" "public_subnet_ids" {
     value = "${var.project}/${var.environment}/public_subnet_ids"
 }

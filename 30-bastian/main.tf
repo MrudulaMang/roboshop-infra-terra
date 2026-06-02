@@ -31,7 +31,7 @@ resource "aws_instance" "bastian" {
     )
 }
 
-# aws_iam_rol '; aws_instance_policy_attachment ; aws_instance_policy_attachment
+# aws_iam_role '; aws_instance_policy_attachment ; aws_instance_policy_attachment
 resource "aws_iam_role" "bastian" {
   name = "RoboshopDevBastian"
 
@@ -60,19 +60,30 @@ resource "aws_instance_policy_attachment" "bastian" {
    
     role = aws_iam_role.bastian.name
     #policy_arn = "arn:aws:iam::aws:policy/AmazonEC2FullAccess"
-    policy_arn = "arn:aws:iam::aws:policy/AdministartorAccess" # temp giving admin access will create different roles later and attach to roboshopdev RoboshopDevBastian
+    policy_arn = "arn:aws:iam::aws:policy/AdministartorAccess" 
+      # temp giving admin access will create different roles later and attach to roboshopdev RoboshopDevBastian
+}
 
-
-# ec2 is not an iam identity, role needs credentials and should be trusted entity. 
-# aws creates credentials for this role by creating instance policy
+    # ec2 is not an iam identity, role needs credentials and should be trusted entity. 
+    # aws creates credentials for this role by creating instance policy
 resource "aws_instance_policy_attachment" "bastian" {
      name = "${var.project}-${var.environment}-bastian" 
      role = aws_iam_role.bastian.name
 }
-}
+
 
 # we gave admin access to bastian just for learning purpose. otherwise we need to rigid with iam policies
 #  for security reasons
-  # homelike only, s3 access for state file crete, read and update
+  # like only, s3 access for state file crete, read and update
              #r53 create read and update
              #ec2 creation access 
+
+/*STS = Security Token Service.
+  When an EC2 instance assumes a role, AWS STS generates temporary credentials:
+
+  Access Key
+  Secret Key
+  Session Token
+
+  and delivers them to the instance through IMDS (Instance Metadata Service).
+*/

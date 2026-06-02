@@ -2,7 +2,11 @@
 #session -40 - 41:00
 # we ar creating 50gb root volume only 20 gb is partioned, 
 # remaining 30gb is extended using below commands
-growpart /dev/nvme0n1 4 #grow full size
+growpart /dev/nvme0n1 4 
+    #grow full size
+    #p1 = boot
+    #p2/p3 = system partitions
+    #p4 = LVM physical volume
 pvresize /dev/nvme0n1p4 #i wrote coz lvextend may fail
 lvextend -r -L +30G /dev/mapper/RootVG-homeVol
 # xfx_growfs /home ----no need to use this command when using -r in the above
@@ -12,6 +16,21 @@ yum install -y yum-utils
 yum-config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
 yum -y install terraform
 
+# creating databases
+cd /home/ec2-user
+git clone https://github.com/mrudulamang/roboshop-infra-terra.git
+chown ec2-user:ec2-user -R roboshop-infra-terra
+cd roboshop-infra-dev/40-databases
+terraform init
+terraform apply -auto-approve
+
+# creating components
+cd /home/ec2-user
+git clone https://github.com/mrudulamang/roboshop-infra-terra.git
+chown ec2-user:ec2-user -R roboshop-infra-dev
+cd roboshop-infra-dev/90-components
+terraform init
+terraform apply -auto-approve
 
 
 
@@ -45,9 +64,9 @@ yum -y install terraform
 
 # Bastion boots → Expand storage → Install Terraform → Download Infrastructure Code → Create Databases → Create Application Components
 
-# This explains why the Bastion needs AWS permissions. The script is not merely acting as a jump server; it is executing Terraform commands that create AWS resources. When Terraform runs, it must authenticate to AWS, and it does that using the IAM role attached to the Bastion instance. Without sufficient permissions, the terraform apply commands would fail.
+# This explains why the Bastion needs AWS permissions. 
+    #The script is not merely acting as a jump server; it is executing Terraform commands that create AWS resources. 
+    #When Terraform runs, it must authenticate to AWS, and it does that using the IAM role attached to the Bastion instance. 
+    #Without sufficient permissions, the terraform apply commands would fail.
 
 
-
-riverside - 55000
-usd       - 45000
