@@ -5,9 +5,9 @@
 resource "aws_instance" "bastian" {
     ami = local.ami_id
     instance_type = "t3.micro"
-    vpc_id = local.vpc_id
+    #vpc_id = local.vpc_id
     subnet_id = local.public_subnet_id
-    vpc_security_ids = [local.bastian_sg_id]
+    vpc_security_group_ids = [local.bastian_sg_id]
     iam_instance_profile = aws_iam_instance_profile.bastian.name
     user_data = file("bastian.sh") #script to create disk extension and fo terraform 
 
@@ -57,8 +57,7 @@ resource "aws_iam_role" "bastian" {
   }
 }
 
-resource "aws_instance_policy_attachment" "bastian" {
-   
+resource "aws_iam_role_policy_attachment" "bastian" {
     role = aws_iam_role.bastian.name
     #policy_arn = "arn:aws:iam::aws:policy/AmazonEC2FullAccess"
     policy_arn = "arn:aws:iam::aws:policy/AdministartorAccess" 
@@ -67,7 +66,7 @@ resource "aws_instance_policy_attachment" "bastian" {
 
     # ec2 is not an iam identity, role needs credentials and should be trusted entity. 
     # aws creates credentials for this role by creating instance policy
-resource "aws_instance_policy_attachment" "bastian" {
+resource "aws_iam_instance_profile" "bastian" {
      name = "${var.project}-${var.environment}-bastian" 
      role = aws_iam_role.bastian.name
 }
