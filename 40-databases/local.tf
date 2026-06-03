@@ -1,10 +1,10 @@
 locals {
-    common_tags {
+    common_tags ={
         Project = var.project
         Environment = var.environment
         Terraform = true
-    },
-    vpc_id = data.joindevops.vpc_id
+    }
+    ami_id = data.aws_ami.joindevops.id
     
     #public subnet 1a
     database_subnet_id = split(",",data.aws_ssm_parameter.database_subnet_ids.value)[0]

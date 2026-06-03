@@ -16,7 +16,7 @@ resource "aws_iam_role" "mysql" {
         Principal = {
           Service = "ec2.amazonaws.com"
         }
-      },
+      }
     ]
   })
 
@@ -33,12 +33,12 @@ resource "aws_iam_role" "mysql" {
 resource "aws_iam_policy" "mysql" {
   name        = local.mysql_policy_name
   description = "A policy for MySQL Ec2 instance"
-   # policy = file ("mysql-iam-policy.json")
-   # we u can to parametrise the environement and get relative MySQLrootpassword use the below else above
   policy      = templatefile("mysql-iam-policy.json", {
                 environment = var.environment
   })
 }
+   # policy = file ("mysql-iam-policy.json")
+   # u can parametrise the environement and get relative MySQLrootpassword use the below else above
 
 resource "aws_iam_role_policy_attachment" "mysql" {
   role       = aws_iam_role.mysql.name

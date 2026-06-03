@@ -5,17 +5,16 @@ terraform {
         version = "~> 6.0"
       }
     }
-} 
 
 backend "s3" {
-  name = "terra-state-88s-dev"
+  bucket = "remote-state-aws-88s-devgeek"
   key = "roboshop-dev-mongodb" 
-  region = "us-east-1a"
+  region = "us-east-1"
   encrypt = true
   use_lockfile = true 
 }
-
+}
 provider "aws" {
-  region = "us-east-1a"
+  region = "us-east-1"
 }
 

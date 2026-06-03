@@ -20,11 +20,11 @@ resource "aws_instance" "mongodb" {
 }
 
     # timestamp 14.40
-resource terraform_data "bootstrap_mongodb"{
+resource "terraform_data" "bootstrap_mongodb"{
      triggers_replace = [
         aws_instance.mongodb.id]
         #triggers when mongodb_id changes meaning when new instance is created
-    }
+    
     
     #instead of hardocding the login details see how u can use secrets
 connection {
@@ -44,13 +44,13 @@ provisioner "file"{
 
     #installing anisble and mongodb database in mongo instance by playbook which is in the script bootstrap.sh
     
-provisioner "remote_exec" { 
+provisioner "remote-exec" { 
         inline = [ 
             "chmod +x /tmp/bootstrap.sh" ,
             "sudo sh /tmp/bootstrap.sh mongodb var.environment"
         ]
     }
-
+}
 /*
     Remote-exec:
     Terraform → SSH → 100 machines
@@ -75,7 +75,7 @@ provisioner "remote_exec" {
 
 
 resource "aws_instance" "redis" {
-    name = "${var.project}-${var.environment}-redis"
+    ami           = local.ami_id
     instance_type = "t3.micro"
     subnet_id = local.database_subnet_id
     vpc_security_group_ids = [local.redis_sg_id]
@@ -87,12 +87,11 @@ resource "aws_instance" "redis" {
     )
 }
 
-resource terraform_data "bootstrap_redis"{
+resource "terraform_data" "bootstrap_redis"{
      triggers_replace = [
         aws_instance.redis.id]
      #triggers when redis_id changes meaning when new instance is created
-    }
-
+    
     connection {
         type = "ssh" 
         user = "ec2-user"
@@ -107,20 +106,21 @@ resource terraform_data "bootstrap_redis"{
     }
 
 
-    provisioner "remote_exec" { 
+    provisioner "remote-exec" { 
         inline = [ 
             "chmod +x /tmp/bootstrap.sh" ,
             "sudo sh /tmp/bootstrap.sh redis var.environment"
         ]
     }
+}    
 #-----------------MYSQL SESSION 41
 
 
 resource "aws_instance" "mysql" {
-    name = "${var.project}-${var.environment}-mysql"
+    ami           = local.ami_id
     instance_type = "t3.micro"
     subnet_id = local.database_subnet_id
-    vpc_security_ids = [local.redis_sg_id]
+    vpc_security_group_ids = [local.redis_sg_id]
     iam_instance_profile = aws_iam_instance_profile.mysql.name
 
   
@@ -132,11 +132,11 @@ resource "aws_instance" "mysql" {
     )
 }
 
-resource terraform_data "bootstrap_mysql"{
+resource "terraform_data" "bootstrap_mysql"{
      triggers_replace = [
         aws_instance.mysql.id]
      #triggers when mysql_id changes meaning when new instance is created
-    }
+    
 
     connection {
         type = "ssh" 
@@ -152,17 +152,17 @@ resource terraform_data "bootstrap_mysql"{
     }
 
 
-    provisioner "remote_exec" { 
+    provisioner "remote-exec" { 
         inline = [ 
             "chmod +x /tmp/bootstrap.sh" ,
             "sudo sh /tmp/bootstrap.sh mysql var.environment"
         ]
     }
-
+}
 #---------------------RABBITMQ
 
 resource "aws_instance" "rabbitmq" {
-    name = "${var.project}-${var.environment}-rabbitmq"
+    ami = local.ami_id
     instance_type = "t3.micro"
     subnet_id = local.database_subnet_id
     vpc_security_group_ids = [local.rabbitmq_sg_id]
@@ -175,12 +175,12 @@ resource "aws_instance" "rabbitmq" {
     )
 }
 
-resource terraform_data "bootstrap_rabbitmq"{
+resource "terraform_data" "bootstrap_rabbitmq" {
      triggers_replace = [
         aws_instance.rabbitmq.id]
           #filemd5("${path.module}/bootstrap.sh")
           #triggers when rabbitmq_id changes meaning when new instance is created
-    }
+    
 
     connection {
         type = "ssh" 
@@ -190,18 +190,19 @@ resource terraform_data "bootstrap_rabbitmq"{
     }
 
     # timestamp from sessiom TFS =22:26
-    provisioner "file"{
+    provisioner "file" {
         source = "bootstrap.sh"        # copy file from here
         destination = "/tmp/bootstrap.sh" # to rabbitmq instance
     }
 
-
-    provisioner "remote_exec" { 
+    provisioner "remote-exec" { 
         inline = [ 
             "chmod +x /tmp/bootstrap.sh" ,
             "sudo sh /tmp/bootstrap.sh rabbitmq var.environment"
         ]
     }
+ }
+
 
 
 #-------------------
