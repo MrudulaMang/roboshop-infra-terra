@@ -1,0 +1,228 @@
+-------------------------path of etc error for mysql /etc/my.conf inansible it was written /etc/mysql/mysql.cong
+  ssh ec2-user@mysql-dev.devopsgeek.online
+  find / -name "*.cnf" 2>/dev/null
+  SSH into MySQL:
+
+ssh ec2-user@mysql-dev.devopsgeek.online
+
+Then:
+
+find /etc -name "*mysql*"
+
+or
+
+find / -name "*.cnf" 2>/dev/null
+
+On RHEL 9, MySQL configuration is usually:
+
+/etc/my.cnf
+
+not:
+
+/etc/mysql/mysql.conf
+
+The clue is that your MongoDB server is running RedHat 9.
+
+Most Roboshop setups use RHEL-based AMIs.
+
+On RHEL:
+
+MySQL      -> /etc/my.cnf
+MongoDB    -> /etc/mongod.conf
+
+On Ubuntu:
+
+MySQL      -> /etc/mysql/mysql.conf.d/
+
+Your playbook may have been written for Ubuntu while your EC2 is RedHat.
+--------------------------------------------------------
+
+
+Work through these checks:
+1. Verify DNS resolves
+    nslookup mongodb-dev.devopsgeek.online
+    or
+    dig mongodb-dev.devopsgeek.online
+    You should get an IP address.
+
+2. Check what curl is waiting on
+
+    Run:
+        curl -v mongodb-dev.devopsgeek.online
+        Look for messages like:
+        Trying x.x.x.x...
+        Connected...
+        or
+        Connection timed out
+        or
+        Connection refused
+
+        The output will tell you whether the problem is DNS, routing, or the application.
+
+3. Is there a web server on MongoDB?
+
+    MongoDB normally listens on:
+
+    27017
+
+    not:
+
+    80
+    443
+
+    curl defaults to HTTP on port 80.
+
+    If this DNS record points to a MongoDB server, then:
+
+    curl mongodb-dev.devopsgeek.online
+
+    may never return because there's no HTTP service there.
+
+Check:
+
+    nc -zv mongodb-dev.devopsgeek.online 27017
+
+    or
+
+    telnet mongodb-dev.devopsgeek.online 27017
+4. Check Route53 record
+
+    If you're creating records via Terraform, verify:
+
+    dig mongodb-dev.devopsgeek.online
+
+    returns the expected private IP or public IP.
+
+    Many Roboshop setups create records like:
+
+    mongodb-dev.devopsgeek.online
+    mysql-dev.devopsgeek.online
+    rabbitmq-dev.devopsgeek.online
+
+    that point to private IPs.
+
+    If you're testing from outside the VPC:
+
+    DNS resolves
+    ↓
+    Private IP returned
+    ↓
+    No route from internet
+    ↓
+    curl hangs
+
+This is a very common cause.
+
+5. Check the EC2 instance
+
+    On the MongoDB server:
+
+    sudo ss -tulpn | grep 27017
+
+    You should see MongoDB listening.
+
+    Also verify:
+
+    systemctl status mongod
+
+The most useful next command is:
+
+curl -v mongodb-dev.devopsgeek.online
+
+Paste the output. The exact line where it stops will immediately narrow down the issue.
+
+dig cmd output------------
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 1045
+;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 1
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 4096
+;; QUESTION SECTION:
+;mongodb-dev.devopsgeek.online. IN      A
+
+;; ANSWER SECTION:
+mongodb-dev.devopsgeek.online. 1 IN     A       10.0.21.218
+
+;; Query time: 8 msec
+;; SERVER: 10.0.0.2#53(10.0.0.2)
+;; WHEN: Wed Jun 03 10:02:03 UTC 2026
+;; MSG SIZE  rcvd: 74
+
+This is actually a good sign.
+
+DNS is working correctly.
+
+mongodb-dev.devopsgeek.online → 10.0.21.218
+
+The important clue is:
+
+SERVER: 10.0.0.2#53
+
+That's the AWS VPC Route53 Resolver, which means you're running this command from inside the VPC (probably Bastion).
+
+Now think about what curl is doing:
+
+curl mongodb-dev.devopsgeek.online
+
+By default, curl tries:
+
+http://mongodb-dev.devopsgeek.online:80
+
+But MongoDB listens on:
+
+27017
+
+not port 80.
+
+So hanging is expected if:
+
+no web server is running
+SG allows neither 80 nor HTTP responses
+MongoDB is listening only on 27017
+
+Next checks:
+
+nc -zv mongodb-dev.devopsgeek.online 27017
+
+or
+
+telnet mongodb-dev.devopsgeek.online 27017
+
+Also check from Bastion:
+
+ssh ec2-user@10.0.21.218
+
+If SSH works, networking is fine.
+
+Then on the MongoDB server:
+
+sudo systemctl status mongod
+
+and
+
+sudo ss -tulpn | grep 27017
+
+You should see something like:
+
+LISTEN 0 128 *:27017
+
+One more thing: if this record was just created by Terraform, verify it points to the correct instance:
+
+aws ec2 describe-instances \
+  --filters "Name=private-ip-address,Values=10.0.21.218"
+
+The key question is: Why were you running curl?
+
+If your goal was to verify Route53 creation, you've already proven that:
+
+DNS name
+    ↓
+Resolves successfully
+    ↓
+Returns expected private IP
+
+That test has passed.
+
+If your goal was to verify MongoDB itself, curl is the wrong protocol. MongoDB is not an HTTP service.
