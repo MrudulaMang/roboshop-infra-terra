@@ -11,14 +11,13 @@ cd ansible-roboshop-roles-tf
 ansible-playbook -e component=$component -e env=$environment roboshop.yaml
 
 
-/*
-if [ -d "repo" ]; then
-  cd repo && git pull
-else
-  git clone repo-url
-fi
 
-Checks actual git repo, not just folder
-Avoids broken cases like:
-folder exists but not a git repo
-*/
+# if [ -d "repo" ]; then
+#   cd repo && git pull
+# else
+#   git clone repo-url
+# fi
+
+# Checks actual git repo, not just folder
+# Avoids broken cases like:
+#folder exists but not a git repo
