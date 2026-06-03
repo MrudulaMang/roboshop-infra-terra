@@ -47,7 +47,7 @@ provisioner "file"{
 provisioner "remote-exec" { 
         inline = [ 
             "chmod +x /tmp/bootstrap.sh" ,
-            "sudo sh /tmp/bootstrap.sh mongodb var.environment"
+            "sudo sh /tmp/bootstrap.sh mongodb ${var.environment}"
         ]
     }
 }
@@ -109,7 +109,7 @@ resource "terraform_data" "bootstrap_redis"{
     provisioner "remote-exec" { 
         inline = [ 
             "chmod +x /tmp/bootstrap.sh" ,
-            "sudo sh /tmp/bootstrap.sh redis var.environment"
+            "sudo sh /tmp/bootstrap.sh redis ${var.environment}"
         ]
     }
 }    
@@ -155,7 +155,7 @@ resource "terraform_data" "bootstrap_mysql"{
     provisioner "remote-exec" { 
         inline = [ 
             "chmod +x /tmp/bootstrap.sh" ,
-            "sudo sh /tmp/bootstrap.sh mysql var.environment"
+            "sudo sh /tmp/bootstrap.sh mysql ${var.environment}"
         ]
     }
 }
@@ -198,14 +198,14 @@ resource "terraform_data" "bootstrap_rabbitmq" {
     provisioner "remote-exec" { 
         inline = [ 
             "chmod +x /tmp/bootstrap.sh" ,
-            "sudo sh /tmp/bootstrap.sh rabbitmq var.environment"
+            "sudo sh /tmp/bootstrap.sh rabbitmq ${var.environment}"
         ]
     }
  }
 
 
 
-#-------------------
+#----------------------------------------------------
    # Include a hash of the script in triggers_replace(even there is no change in instnace id and there is change is only in the script). if script fails and we need to reapply terra, then
    #   remote exec wont get executed as there is no change in the instance id. 
    # resource "terraform_data" "db_config" {
