@@ -1,3 +1,29 @@
+
+Permission denied, please try again.
+conencting frombastain... sg rule is there accepting conenction from bastain at port 22 
+
+The key clue is:
+
+Permission denied, please try again.
+
+This means:
+
+Network connectivity is working.
+SSH reached the server.
+Authentication failed.
+
+If SG was the problem, you'd get:
+
+Connection timed out
+
+or
+
+No route to host
+
+not a password prompt.
+
+
+
 -------------------------path of etc error for mysql /etc/my.conf inansible it was written /etc/mysql/mysql.cong
   ssh ec2-user@mysql-dev.devopsgeek.online
   find / -name "*.cnf" 2>/dev/null
