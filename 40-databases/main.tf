@@ -113,7 +113,7 @@ resource "terraform_data" "bootstrap_redis"{
         ]
     }
 }    
-#-----------------MYSQL SESSION 41
+#-------------------------MYSQL SESSION 41
 
 
 resource "aws_instance" "mysql" {

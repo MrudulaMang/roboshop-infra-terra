@@ -1,0 +1,1 @@
+session 41 43:00 iam policy creation (getparameter adn describeparameter(to view))

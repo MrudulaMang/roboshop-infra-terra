@@ -38,7 +38,7 @@ resource "aws_iam_policy" "mysql" {
   })
 }
    # policy = file ("mysql-iam-policy.json")
-   # u can parametrise the environement and get relative MySQLrootpassword use the below else above
+   # u can parametrise the environment and get relative MySQLrootpassword use the below else above
 
 resource "aws_iam_role_policy_attachment" "mysql" {
   role       = aws_iam_role.mysql.name
@@ -49,3 +49,4 @@ resource "aws_iam_instance_profile" "mysql" {
   name = "${var.project}-${var.environment}-mysql"
   role = aws_iam_role.mysql.name
 }
+
