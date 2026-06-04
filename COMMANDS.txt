@@ -23,15 +23,8 @@ Check owner:
 ls -ld /home/ec2-user/roboshop-infra-terra
 
 If owned by root:
-
-sudo chown -R ec2-user:ec2-user /home/ec2-user/roboshop-infra-terra
-
+    sudo chown -R ec2-user:ec2-user /home/ec2-user/roboshop-infra-terra
 Verify:
-
-ls -ld /home/ec2-user/roboshop-infra-terra
-
-Expected:
-
-ec2-user ec2-user
-
-Now:
+    ls -ld /home/ec2-user/roboshop-infra-terra
+    Expected:
+    ec2-user ec2-user

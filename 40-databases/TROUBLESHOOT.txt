@@ -252,3 +252,27 @@ Returns expected private IP
 That test has passed.
 
 If your goal was to verify MongoDB itself, curl is the wrong protocol. MongoDB is not an HTTP service.
+====================================================
+Application Not Starting
+├── systemctl status
+├── journalctl -u
+├── free -h
+└── df -h
+
+Application Cannot Reach DB
+├── nslookup
+├── nc -zv
+├── SG verification
+└── Route53 verification
+
+Application Slow
+├── top
+├── vmstat
+├── iostat
+└── DB query latency
+
+502 from ALB
+├── Target Health
+├── Health Endpoint
+├── SG
+└── App Logs
