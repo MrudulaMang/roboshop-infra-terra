@@ -5,3 +5,5 @@ variable "project" {
 variable "environment" {
     default = "dev"
 }
+
+variable "my_ip" {}

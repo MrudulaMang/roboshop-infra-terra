@@ -4,7 +4,9 @@ for i in 00-vpc/ 10-sg/ 30-bastian/;
  terraform apply -auto-approve;
  cd ..;
 done
-
+---------powershell
+    foreach ($folder in "00-vpc","10-sg","20-sg-rules","30-bastion") { cd $folder; terraform apply -auto-approve; cd .. }
+---------    
 
 ----user_data script logs, check
 To discover the failure you must inspect:
@@ -13,3 +15,23 @@ To discover the failure you must inspect:
 journalctl -u cloud-init
 
 on the instance.
+--------------
+Better Fix (Correct Ownership)
+
+Check owner:
+
+ls -ld /home/ec2-user/roboshop-infra-terra
+
+If owned by root:
+
+sudo chown -R ec2-user:ec2-user /home/ec2-user/roboshop-infra-terra
+
+Verify:
+
+ls -ld /home/ec2-user/roboshop-infra-terra
+
+Expected:
+
+ec2-user ec2-user
+
+Now:

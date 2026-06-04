@@ -1,1 +1,10 @@
-session 41 43:00 iam policy creation (getparameter adn describeparameter(to view))
+session 41 43:00
+     iam policy creation (getparameter adn describeparameter(to view))
+
+56:00
+roboshop/qa/mysql_root_password
+
+and templatefile() lets a single policy template work for all environments.
+tempaltefile in terraform for palce holders in json
+
+

@@ -60,21 +60,21 @@ resource "aws_iam_role" "bastian" {
 resource "aws_iam_role_policy_attachment" "bastian" {
     role = aws_iam_role.bastian.name
     #policy_arn = "arn:aws:iam::aws:policy/AmazonEC2FullAccess"
-    policy_arn = "arn:aws:iam::aws:policy/AdministartorAccess" 
+    policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess" 
       # temp giving admin access will create different roles later and attach to roboshopdev RoboshopDevBastian
 }
 
-    # ec2 is not an iam identity, role needs credentials and should be trusted entity. 
-    # aws creates credentials for this role by creating instance policy
+      # ec2 is not an iam identity, role needs credentials and should be trusted entity. 
+      # aws creates credentials for this role by creating instance policy
 resource "aws_iam_instance_profile" "bastian" {
      name = "${var.project}-${var.environment}-bastian" 
      role = aws_iam_role.bastian.name
 }
 
 
-# we gave admin access to bastian just for learning purpose. otherwise we need to rigid with iam policies
-#  for security reasons
-  # like only, s3 access for state file crete, read and update
+      # we gave admin access to bastian just for learning purpose. otherwise we need to rigid with iam policies
+      #  for security reasons
+        # like only, s3 access for state file crete, read and update
              #r53 create read and update
              #ec2 creation access 
 

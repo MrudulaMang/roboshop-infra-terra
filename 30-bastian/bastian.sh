@@ -17,21 +17,22 @@ yum-config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.
 yum -y install terraform
 
 # creating databases
-cd /home/ec2-user
-git clone https://github.com/mrudulamang/roboshop-infra-terra.git
-chown ec2-user:ec2-user -R roboshop-infra-terra
-cd roboshop-infra-dev/40-databases
-terraform init
-terraform apply -auto-approve
+# cd /home/ec2-user
+# git clone https://github.com/mrudulamang/roboshop-infra-terra.git
+# chown ec2-user:ec2-user -R roboshop-infra-terra
+# cd roboshop-infra-dev/40-databases
+# terraform init
+# terraform apply -auto-approve
 
 # creating components
+/*
 cd /home/ec2-user
 git clone https://github.com/mrudulamang/roboshop-infra-terra.git
 chown ec2-user:ec2-user -R roboshop-infra-dev
 cd roboshop-infra-dev/90-components
 terraform init
 terraform apply -auto-approve
-
+*/
 
 
 
