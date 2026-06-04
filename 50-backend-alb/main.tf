@@ -1,3 +1,5 @@
+# session 42
+
 resource "aws_lb" "backend_alb" {
   name               = "${var.project}-${var.environment}" # roboshop-dev
   internal           = true
@@ -44,3 +46,13 @@ resource "aws_route53_record" "www" {
     evaluate_target_health = true
   }
 }
+#-----------------------------------------------------------
+  #LB rule should choose atleast two azs
+  #cannot access port no 22 for lb as it is completely managed by aws
+# host path retailbanking.icicibank.com
+# main host icicibank.com 
+# context path icicibank.com/retailbanking
+
+#listener rules--> upto 50k
+  # resolves lowest to highest, if nothing gets evaluated default will be taken
+  # 503 service not available. when lb cant reach service/instance
