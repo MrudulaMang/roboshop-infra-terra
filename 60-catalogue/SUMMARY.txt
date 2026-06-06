@@ -1,0 +1,178 @@
+aws_instance.catalogue
+│
+├── Create EC2 instance
+│      AMI = local.ami_id
+│      Type = t3.micro
+│      SG = catalogue_sg
+│
+▼
+terraform_data.catalogue
+│
+├── SSH into instance
+├── Copy bootstrap.sh
+├── Execute bootstrap.sh
+│      configure application
+│      install dependencies
+│      start service
+│
+▼
+aws_ec2_instance_state.catalogue
+│
+├── Stop instance
+│
+▼
+aws_ami_from_instance.catalogue
+│
+├── Create custom AMI
+│      Contains:
+│      - OS
+│      - Packages
+│      - Catalogue application
+│      - Configurations
+│      - Everything bootstrap.sh installed
+│
+▼
+aws_launch_template.catalogue
+│
+├── Image = Custom AMI
+├── Instance Type = t3.micro
+├── Security Group = catalogue_sg
+├── Tags
+│
+▼
+aws_autoscaling_group.catalogue
+│
+├── Launch instances from LT
+├── Desired = 1
+├── Min = 1
+├── Max = 10
+├── Register instances with TG
+│
+▼
+aws_lb_target_group.catalogue
+│
+├── Port 8080
+├── Health check /health
+│
+▼
+aws_lb_listener_rule.catalogue
+│
+├── Route traffic
+│
+└── catalogue.backend-alb-dev.domain.com
+                │
+                ▼
+         Target Group
+                │
+                ▼
+        Auto Scaling Instances
+
+
+      -------------------------------------------------
+Resource dependency view:
+
+aws_instance.catalogue
+        │
+        ▼
+terraform_data.catalogue
+        │
+        ▼
+aws_ec2_instance_state.catalogue
+        │
+        ▼
+aws_ami_from_instance.catalogue
+        │
+        ▼
+aws_launch_template.catalogue
+        │
+        ▼
+aws_autoscaling_group.catalogue
+        │
+        ├──────────────► aws_autoscaling_policy.catalogue
+        │
+        └──────────────► aws_lb_target_group.catalogue
+                                  │
+                                  ▼
+                     aws_lb_listener_rule.catalogue
+
+aws_autoscaling_policy.catalogue
+        │
+        ▼
+terraform_data.catalogue_delete
+        │
+        ▼
+Terminate original EC2        
+-----------------------------------------------------------
+
+What does the AMI contain?
+
+When you create:
+
+resource "aws_ami_from_instance" "catalogue"
+
+the AMI captures:
+
+OS (RHEL)
+├── Installed packages
+├── Catalogue code
+├── Config files
+├── Systemd services
+├── Environment settings
+├── Application dependencies
+└── Everything present on disk
+
+It does NOT contain:
+
+Instance Type
+Security Groups
+Subnet
+Private IP
+Public IP
+IAM Role
+Auto Scaling settings
+
+That's why in the Launch Template you still specify:
+
+instance_type = "t3.micro"
+vpc_security_group_ids = [...]
+
+Because AMI answers:
+
+"What disk image should I boot from?"
+
+Launch Template answers:
+
+"How should this instance be created?"
+
+So:
+
+AMI
+│
+├── OS
+├── App
+├── Packages
+└── Configuration
+
+Launch Template
+│
+├── Instance Type
+├── Security Groups
+├── IAM Role
+├── User Data
+├── Shutdown behavior
+└── Tags
+
+Auto Scaling Group
+│
+├── Min
+├── Max
+├── Desired
+└── Scaling rules
+
+A useful interview question is:
+
+If AMI already has the application, why create a Launch Template?
+
+Answer:
+
+AMI only defines the machine image. Auto Scaling needs additional information such as instance type, security groups, IAM role, tags, and launch configuration. Launch Template combines the AMI with those runtime settings so ASG can launch identical servers repeatedly.

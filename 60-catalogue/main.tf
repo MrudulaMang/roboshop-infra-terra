@@ -1,3 +1,11 @@
+# session 43
+ # what does ami has , y adding instacne type in and other attributes in launch template.
+ # WHAT IS update_default_version
+  # what about target group size/ autoscaling how to control  or handle the volumes or disk size
+ # when we delete the instance after ami creation then when we apply terra, ami willagain be created?
+  # or if we change the version of eg. catalogue in anisible, how will terraform know to create  a new 
+   #
+
 resource "aws_instance" "catalogue" {
   ami           = local.ami_id
   instance_type = "t3.micro"
