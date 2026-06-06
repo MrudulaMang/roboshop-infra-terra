@@ -4,7 +4,7 @@
   # what about target group size/ autoscaling how to control  or handle the volumes or disk size
  # when we delete the instance after ami creation then when we apply terra, ami willagain be created?
   # or if we change the version of eg. catalogue in anisible, how will terraform know to create  a new 
-   #
+ # IF catalogue instance is in 1a and user incstances or busy if neede will it communicate the usser instance in 1b
 
 resource "aws_instance" "catalogue" {
   ami           = local.ami_id
@@ -56,6 +56,8 @@ resource "aws_ami_from_instance" "catalogue" {
   name               = "${var.project}-${var.environment}-catalogue-${var.app_version}-${aws_instance.catalogue.id}"
   source_instance_id = aws_instance.catalogue.id
   depends_on = [aws_ec2_instance_state.catalogue]
+    #aws_ec2_instance_state is managed by the AWS provider and waits until the instance actually reaches the target state (stopped
+    # A resource is not considered complete until all its provisioners finish successfully.
   tags = merge(
     {
         Name = "${var.project}-${var.environment}-catalogue"
@@ -70,15 +72,17 @@ resource "aws_lb_target_group" "catalogue" {
   protocol = "HTTP"
   vpc_id   = local.vpc_id
   deregistration_delay = 60
+    # time to wait before destroying the  instance  
 
+    #1:12
   health_check {
-    healthy_threshold = 2
+    healthy_threshold = 2 # no of requets t pass
     interval = 10
     matcher = "200-299"
     path = "/health"
     port = 8080
     protocol = "HTTP"
-    timeout = 2
+    timeout = 2 # should get response in 2 secs
     unhealthy_threshold = 3
   }
 }
@@ -216,3 +220,15 @@ resource "terraform_data" "catalogue_delete" {
   }
 }
 
+#--------------------------------------------------------
+#One subtle issue: Terraform only knows that the stop command finished, not that the instance is actually in the stopped state.
+  #For example:
+  #aws ec2 stop-instances --instance-ids i-123
+  #returns almost immediately while AWS may take 30–90 seconds to fully stop the instance.
+  #In that case AMI creation might start too early.
+  #Production-grade approach:
+  #aws ec2 stop-instances --instance-ids i-123
+  #aws ec2 wait instance-stopped --instance-ids i-123
+  #or use a data/resource that explicitly waits for the instance state before creating the AMI.
+
+  # For many applications AWS can create crash-consistent AMIs from a running instance. Stopping gives cleaner filesystem consistency but increases build time and causes downtime. The trade-off depends on whether this is a bake pipeline, a production server, or an ephemeral image-builder instance. That's the architectural question worth asking rather than just whether the dependencies work.
