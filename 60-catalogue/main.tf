@@ -5,7 +5,8 @@
  # when we delete the instance after ami creation then when we apply terra, ami willagain be created?
   # or if we change the version of eg. catalogue in anisible, how will terraform know to create  a new 
  # IF catalogue instance is in 1a and user incstances or busy if neede will it communicate the usser instance in 1b
-
+# check/learn on instance refresh
+# learn dynamic block
 resource "aws_instance" "catalogue" {
   ami           = local.ami_id
   instance_type = "t3.micro"
@@ -134,7 +135,7 @@ resource "aws_autoscaling_group" "catalogue" {
   name                      = "${var.project}-${var.environment}-catalogue"
   max_size                  = 10
   min_size                  = 1
-  health_check_grace_period = 120
+  health_check_grace_period = 120 # start health check aftr 120secs
   health_check_type         = "ELB"
   desired_capacity          = 1
   force_delete              = false
@@ -147,14 +148,14 @@ resource "aws_autoscaling_group" "catalogue" {
   
   vpc_zone_identifier       = [local.private_subnet_id]
   target_group_arns = [aws_lb_target_group.catalogue.arn]
-
+            # attach to target grp
   instance_refresh {
     strategy = "Rolling"
     preferences {
       min_healthy_percentage = 50
     }
     triggers = ["launch_template"]
-  }
+  } # update instances with new launch template when ever u have new version
 
   dynamic "tag" {
     for_each = merge(

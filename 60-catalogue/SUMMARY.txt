@@ -42,11 +42,11 @@ aws_launch_template.catalogue
 ▼
 aws_autoscaling_group.catalogue
 │
-├── Launch instances from LT
+├── Launch instances from LT(launch template)
 ├── Desired = 1
 ├── Min = 1
 ├── Max = 10
-├── Register instances with TG
+├── Register instances with TG(targt grp)
 │
 ▼
 aws_lb_target_group.catalogue
