@@ -7,6 +7,9 @@
  # IF catalogue instance is in 1a and user incstances or busy if neede will it communicate the usser instance in 1b
 # check/learn on instance refresh
 # learn dynamic block
+#cost of using LB, auto scaling
+# certification at lb level vs ec2 level
+
 resource "aws_instance" "catalogue" {
   ami           = local.ami_id
   instance_type = "t3.micro"
@@ -87,7 +90,7 @@ resource "aws_lb_target_group" "catalogue" {
     unhealthy_threshold = 3
   }
 }
-
+# session 44
 resource "aws_launch_template" "catalogue" {
   name = "${var.project}-${var.environment}-catalogue"
   image_id = aws_ami_from_instance.catalogue.id
@@ -106,7 +109,7 @@ resource "aws_launch_template" "catalogue" {
 
     tags = merge(
         {
-            Name = "${var.project}-${var.environment}-catalogue"
+            Name = "${var.project}-${var.environment}-catalogue-${var.app_version}-${aws_instance.catalogue.id}"
         },
         local.common_tags
     )
