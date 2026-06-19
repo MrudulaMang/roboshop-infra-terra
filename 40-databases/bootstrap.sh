@@ -9,7 +9,7 @@ rm -rf ansible-roboshop-roles-tf
 git clone https://github.com/MrudulaMang/ansible-roboshop-roles-tf.git
 cd ansible-roboshop-roles-tf
 #git pull
-ansible-playbook -e component=$component -e env=$environment app_version=$app_version roboshop.yaml
+ansible-playbook -e component=$component -e env=$environment -e app_version=$app_version roboshop.yaml
 sudo chown -R ec2-user:ec2-user /home/ec2-user/roboshop-infra-terra
 
 
