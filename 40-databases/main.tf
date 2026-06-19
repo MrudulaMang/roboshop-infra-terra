@@ -47,7 +47,7 @@ provisioner "file"{
 provisioner "remote-exec" { 
         inline = [ 
             "chmod +x /tmp/bootstrap.sh" ,
-            "sudo sh /tmp/bootstrap.sh mongodb ${var.environment}"
+            "sudo sh /tmp/bootstrap.sh mongodb ${var.environment} ${var.app_version}"
         ]
     }
 }
@@ -109,7 +109,7 @@ resource "terraform_data" "bootstrap_redis"{
     provisioner "remote-exec" { 
         inline = [ 
             "chmod +x /tmp/bootstrap.sh" ,
-            "sudo sh /tmp/bootstrap.sh redis ${var.environment}"
+            "sudo sh /tmp/bootstrap.sh redis ${var.environment} ${var.app_version}"
         ]
     }
 }    
@@ -155,7 +155,7 @@ resource "terraform_data" "bootstrap_mysql"{
     provisioner "remote-exec" { 
         inline = [ 
             "chmod +x /tmp/bootstrap.sh" ,
-            "sudo sh /tmp/bootstrap.sh mysql ${var.environment}"
+            "sudo sh /tmp/bootstrap.sh mysql ${var.environment} ${var.app_version}"
         ]
     }
 }
@@ -198,7 +198,7 @@ resource "terraform_data" "bootstrap_rabbitmq" {
     provisioner "remote-exec" { 
         inline = [ 
             "chmod +x /tmp/bootstrap.sh" ,
-            "sudo sh /tmp/bootstrap.sh rabbitmq ${var.environment}"
+            "sudo sh /tmp/bootstrap.sh rabbitmq ${var.environment} ${var.app_version}"
         ]
     }
  }
