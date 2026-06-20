@@ -1,6 +1,6 @@
 
 Permission denied, please try again.
-conencting frombastain... sg rule is there accepting conenction from bastain at port 22 
+conencting from bastain... sg rule is there accepting conenction from bastain at port 22 
 
 The key clue is:
 
@@ -25,54 +25,37 @@ not a password prompt.
 
 
 -------------------------path of etc error for mysql /etc/my.conf inansible it was written /etc/mysql/mysql.cong
-  ssh ec2-user@mysql-dev.devopsgeek.online
-  find / -name "*.cnf" 2>/dev/null
-  SSH into MySQL:
+   SSH into MySQL from bastian
+  > ssh ec2-user@mysql-dev.devopsgeek.online
+     > find / -name "*.cnf" 2>/dev/null
+      or >find /etc -name "*mysql*"
+    On RHEL 9, MySQL configuration is usually:
+        /etc/my.cnf
+            not:
+        /etc/mysql/mysql.conf
+        >login to mysql database 
+         >mysql -u root
+          p Roboshop..
+          > show databases;
+            >use <db>; > show tables; > 
 
-ssh ec2-user@mysql-dev.devopsgeek.online
-
-Then:
-
-find /etc -name "*mysql*"
-
-or
-
-find / -name "*.cnf" 2>/dev/null
-
-On RHEL 9, MySQL configuration is usually:
-
-/etc/my.cnf
-
-not:
-
-/etc/mysql/mysql.conf
-
-The clue is that your MongoDB server is running RedHat 9.
+The clue is that your Mysql server is running RedHat 9.
 
 Most Roboshop setups use RHEL-based AMIs.
-
 On RHEL:
-
-MySQL      -> /etc/my.cnf
-MongoDB    -> /etc/mongod.conf
-
+    MySQL      -> /etc/my.cnf
+    MongoDB    -> /etc/mongod.conf
 On Ubuntu:
-
-MySQL      -> /etc/mysql/mysql.conf.d/
-
+    MySQL      -> /etc/mysql/mysql.conf.d/
 Your playbook may have been written for Ubuntu while your EC2 is RedHat.
 --------------------------------------------------------
-
-
 Work through these checks:
 1. Verify DNS resolves
     nslookup mongodb-dev.devopsgeek.online
     or
     dig mongodb-dev.devopsgeek.online
     You should get an IP address.
-
 2. Check what curl is waiting on
-
     Run:
         curl -v mongodb-dev.devopsgeek.online
         Look for messages like:
@@ -86,31 +69,30 @@ Work through these checks:
         The output will tell you whether the problem is DNS, routing, or the application.
 
 3. Is there a web server on MongoDB?
-
     MongoDB normally listens on:
-
-    27017
-
+        27017
     not:
-
-    80
-    443
-
+        80
+        443
     curl defaults to HTTP on port 80.
 
     If this DNS record points to a MongoDB server, then:
-
-    curl mongodb-dev.devopsgeek.online
-
-    may never return because there's no HTTP service there.
-
+        curl mongodb-dev.devopsgeek.online
+        may never return because there's no HTTP service there.
 Check:
-
     nc -zv mongodb-dev.devopsgeek.online 27017
-
     or
-
     telnet mongodb-dev.devopsgeek.online 27017
+------->mongosh
+        > show databases
+
+----redis 
+ ssh into redis
+    >redis-cli
+     >SELECT 0
+     > DBSIZE
+
+
 4. Check Route53 record
 
     If you're creating records via Terraform, verify:
