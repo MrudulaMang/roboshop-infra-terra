@@ -22,9 +22,14 @@ No route to host
 
 not a password prompt.
 
-
+when u r inside db-ec2-servers
+    telnet mysql-dev.devopsgeek.online 3306
+    telnet redis-dev.devopsgeek.online 6379
+    telnet rabbitmq-dev.devopsgeek.online 5672
+    telnet catalogue-dev.devopsgeek.online 8080
 
 -------------------------path of etc error for mysql /etc/my.conf inansible it was written /etc/mysql/mysql.cong
+ nslookup mysql-dev.devopsgeek.online
    SSH into MySQL from bastian
   > ssh ec2-user@mysql-dev.devopsgeek.online
                 Tests:
