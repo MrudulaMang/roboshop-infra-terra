@@ -27,6 +27,12 @@ not a password prompt.
 -------------------------path of etc error for mysql /etc/my.conf inansible it was written /etc/mysql/mysql.cong
    SSH into MySQL from bastian
   > ssh ec2-user@mysql-dev.devopsgeek.online
+                Tests:
+                    DNS resolution
+                    Network connectivity
+                    Security Groups/NACLs
+                    SSH service running
+                    Authentication
      > find / -name "*.cnf" 2>/dev/null
       or >find /etc -name "*mysql*"
     On RHEL 9, MySQL configuration is usually:

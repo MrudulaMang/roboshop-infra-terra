@@ -1,3 +1,10 @@
+terraform state list (shows the list of resources created)
+terraform state show [resrc] (show value to specific resource)
+terraform show (show the values of all the resources created)
+----
+#sudo chown -R ec2-user:ec2-user /home/ec2-user/roboshop-infra-terra
+    #change owner and group
+    
 # give full command in single line, i break down to understand
 for i in 00-vpc/ 10-sg/ 30-bastian/;
  do cd $i;
@@ -8,11 +15,11 @@ done
     foreach ($folder in "00-vpc","10-sg","20-sg-rules","30-bastion") { cd $folder; terraform apply -auto-approve; cd .. }
 ---------    
 
-----user_data script logs, check
-To discover the failure you must inspect:
-/var/log/cloud-init-output.log
-    or
-journalctl -u cloud-init
+-------user_data script logs, check
+To discover the failure in user_data you must inspect:
+        sudo cat /var/log/cloud-init-output.log
+            or
+        journalctl -u cloud-init
 
 on the instance.
 --------------
